@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>makeQRコード</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<script type="text/javascript" src="./vender/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="./vender/jquery/jquery-ui.min.js"></script>
+<script type="text/javascript" src="./vender/jquery/jquery.qrcode.min.js"></script>
+<script src="./vender/encoding/encoding.js"></script>
+<link rel="stylesheet" type="text/css" href="./vender/jquery/jquery-ui.css">
+
+<style>
+body {
+    margin-top: 50px;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    height:100%;
+	width: 100%;
+}
+.req-mark {
+	display: inline-block;
+	font-size: 0.8em;
+	height: 1.4em;
+	color: #FFFFFF;
+	background-color: #FF6699;
+	white-space: nowrap;
+	border-radius: 3px;
+	position: relative;
+	padding: 0.1em 0.2em;
+	margin: 0 0 0 0.2em;
+}
+
+.showCenter{
+	margin:0 auto;
+	height:30px;
+	position: relative;
+}
+
+.showCenter > div{
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	margin: 0 auto;
+	padding:10px;
+	width: 250px;
+	height: 50px;
+}
+
+.dataList{
+	vertical-align: text-top;
+	font-size: 15px;
+	line-height: 2.0;
+	color: #555555;
+	background-color: #f4f3f5;
+	padding: 5px 5px 5px 5px;
+	border: 10;
+	border-right: 1px solid #BABFC4;
+	border-bottom: 1px solid #BABFC4;
+	box-sizing: border-box;
+	width: 90%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.dataList td{
+    border:1px solid #333;
+    text-align:center;
+}
+
+#initListBtn {
+	position: fixed;
+    bottom: 20px;
+    left: 20px;
+	color:rgb(255, 255, 255);
+    font-size: 1rem;
+	color: #333;
+}
+
+#downloadBtn {
+	position: fixed;
+	position: center;
+	bottom: 20px;
+	color:rgb(255, 255, 255);
+	font-size: 1.2rem;
+	color: #333;
+}
+
+.dataCount{
+	position:relative;
+	left:100px;
+	bottom:10px;
+	padding: 0;
+    margin: 0;
+	vertical-align: text-top;
+	font-size: 15px;
+	line-height: 2.0;
+	color: #555555;
+	background-color: #f4f3f5;
+	padding: 5px 5px 5px 5px;
+	border-right: 1px solid #BABFC4;
+	border-bottom: 1px solid #BABFC4;
+	box-sizing: border-box;
+	margin: 10px;
+	width : 200px;
+}
+
+.dataCount td{
+    border:1px solid #333;
+    text-align:center;
+	margin : 10px;
+	width : 200px;
+	height : 50px;
+}
+
+p
+label{
+	position: fixed;
+	bottom: 60px;
+}
+
+</style>
+</head>
+
+<body>
+<div id='showAll'>
+<div id='mngPage'>
+	<table class="dataCount">
+		<tr>
+			<th>受付人数</th>
+		</tr>
+		<tr>
+			<td class="count"></td>
+		</tr>
+	</table>
+	<table class="dataList"></table>	
+<div class="showCenter">
+	<div>
+		<input type="button" id="initListBtn" value="登録初期化" />
+		<input type="button" id="downloadBtn" value="ダウンロード" />
+	</div>
+</div>
+</div>
+<p><label><input type="checkbox" class="is-confirm">確認画面on/off</label></p>
+
+</div><!-- tabs End -->
+
+<script type="text/javascript">
+$(function () {
+	var isConfirm = window.localStorage.getItem("isConfirm");
+	$('.is-confirm').prop('checked', isConfirm);
+	$('.is-confirm').on('click', function () {
+		window.localStorage.setItem("isConfirm", $(this).prop('checked'));
+	});
+});
+
+$(function () {
+
+	var list;
+	var entry = [];
+
+	function init(){
+		var data = window.localStorage.getItem("entryList");
+		list = $.extend(true, [], JSON.parse(data));
+
+		makeTalbe()
+	}
+	$(init);
+
+	window.addEventListener('storage', function(e) {
+		$(".dataList").empty();
+		init();
+	});
+
+	function makeTalbe(){
+		var target = $(".dataList");
+		
+		var tmp;
+        tmp = "<tr>";
+		//tmp += "<td>体温記入</td>";
+        tmp += "<td>NO</td>";
+        // tmp += "<td>受付日時</td>"
+        tmp += "<td>受付No</td>"
+		tmp += "<td>発行No</td>"
+		// tmp += "<td>受付回数</td>";
+		tmp += "<td>氏名</td>";
+		// tmp += "<td>フリガナ</td>";
+		// tmp += "<td>生年月日</td>";
+		// tmp += "<td>性別</td>";
+		// tmp += "<td>郵便番号</td>";
+		// tmp += "<td>現住所</td>";
+		// tmp += "<td>電話番号</td>";
+		// tmp += "<td>携帯番号</td>";
+		// tmp += "<td>緊急連絡先</td>";
+		// tmp += "<td>活動予定期間</td>";
+		// tmp += "<td>期間開始</td>";
+		// tmp += "<td>期間終了</td>";
+		// tmp += "<td>ボランティア活動保険</td>";
+		// tmp += "<td>健康状態</td>";
+		// tmp += "<td>治ってないケガ</td>";
+		// tmp += "<td>治ってないケガある場合記載</td>";
+		// tmp += "<td>その他の病気</td>";
+		// tmp += "<td>その他の病気ある場合記載</td>";
+		// tmp += "<td>血液型</td>";
+		// tmp += "<td>資格免許</td>";
+		// tmp += "<td>建築士(級)</td>";
+		// tmp += "<td>その他ある場合記載</td>";
+		// tmp += "<td>特技等</td>";
+		// tmp += "<td>外国語通訳記載</td>";
+		// tmp += "<td>その他ある場合記載</td>";
+		tmp += "</tr>";
+		target.append(tmp);
+	
+		var targets = [0, 3, 4, 6];	
+		var count = 0;
+		$(list).each(function(i){
+			count++;
+			tmp = "<tr>";
+			$(list[i]).each(function(h,ele){
+				if (!targets.includes(h)) {
+					return;
+				}
+				tmp += "<td>" + ele + "</td>";
+			});
+			tmp += "</tr>";
+			target.append(tmp);
+		});	
+		$(".count").text(count);
+	}
+	
+	
+	$("#initListBtn").click(function(){
+		$(".dataList").empty();	
+			if(!confirm('本当に削除しますか？')){
+				/* キャンセルの時の処理 */
+				location.href = 'list.html';
+				
+    		}else{
+				/*　OKの時の処理 */
+				window.localStorage.removeItem("entryList");
+				location.href = 'list.html';
+			}
+	});
+	
+
+	$("#downloadBtn").click(function(){
+		var fileName = prompt('ファイル名を入力してください');
+		if (!fileName) {
+			alert('ファイル名が入力されていません。');
+			return;
+		}
+		var header = ["NO","体温記入","受付日時","受付No","発行No","受付回数","氏名","フリガナ","生年月日","性別","郵便番号","現住所","電話番号","携帯番号","緊急連絡先","活動予定期間","期間開始","期間終了","ボランティア活動保険","健康状態","治ってないケガ","治ってないケガがある場合記載","その他の病気","その他の病気ある場合記載","血液型","運転免許\(普通\)","運転免許\(大型\)","運転免許\(自二\)","医師","看護師","保険師","助産師","保育士","救急救命士","介護福祉士","ホームヘルパー","マッサージ師","理美容師","建築士","手話通訳士","調理師","栄養士","アマチュア無線","その他","建築士(級)","その他ある場合記載","災害ボランティアの経験","イラスト","介護","要約筆記","点字","手話","外国語通訳","電気工事関係","建築土木関係","自動車・自転車修理","事務","その他","外国語通訳記載","その他ある場合記載"];
+		var newList = list;
+		newList.unshift(header) ;
+		var csv_data = newList.map(function(l){return l.join(",")}).join("\r\n");
+		var unicodeList = [];
+		for (let i = 0; i < csv_data.length; i += 1) {
+		  unicodeList.push(csv_data.charCodeAt(i));
+		}
+		var shiftJisCodeList = Encoding.convert(unicodeList, 'sjis', 'unicode');
+		var uInt8List = new Uint8Array(shiftJisCodeList);
+		var blob = new Blob([uInt8List], { type: "text/csv" });
+		var url = (window.URL || window.webkitURL).createObjectURL(blob);
+		var link = document.createElement("a");
+		link.download = fileName
+		link.href = url
+		link.click()
+	});	
+});//終わり
+</script>
+</body>
+</html>

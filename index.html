@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML Sample</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="text/javascript" src="sample.js"></script>
+</head>
+<body>
+  <div style="text-align:center">
+  <div class="header"><h1>こちらにスキャンお願いします</h1>
+    <img src="img/sample1.jpg" width="50%" height="50%">
+  </div>
+</body>
+</html>
+<html>
+<style>
+#tb1 {
+  width: 400px;
+  padding: 10px 0;
+  text-align: center;
+  text-decoration: none;
+}
+</style>
+<body>
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+  <html lang="ja">
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+  <meta http-equiv="Content-Script-Type" content="text/javascript">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title>submit sample</title>
+  <script type="text/javascript">
+  function jump() {
+  // ↓の''内をベースのurlに修正して下さい
+  var baseURL = '';
+  var sDIR = document.getElementById('tb1').value;
+  location.href = baseURL + sDIR;
+  }
+  </script>
+  </head>
+  <body>
+  <div>
+  <form action="javascript:jump();" id="test">
+  <input id="tb1" type="text" inputmode="url" value="" placeholder="枠内にカーソル設置し、QRコードをスキャンして下さい">
+  </form>
+  </div>
+  </body>
+  </html>
+</body>
+</html>

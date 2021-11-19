@@ -1,0 +1,1297 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>makeQRコード</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+		
+		<link rel="stylesheet" type="text/css" href="./vender/OnsenUI-dist-2.11.1/css/onsenui.css">
+		<link rel="stylesheet" type="text/css" href="./vender/OnsenUI-dist-2.11.1/css/onsen-css-components.min.css">
+		<link rel="stylesheet" type="text/css" href="./vender/jquery/jquery-ui.css">
+		
+		<script type="text/javascript" src="./vender/jquery/jquery.min.js"></script>
+		<script type="text/javascript" src="./vender/jquery/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="./vender/jquery/jquery.qrcode.min.js"></script>
+		<script type="text/javascript" src="./vender/jquery/jquery.autoKana.js"></script>
+		<script type="text/javascript" src="./vender/ajaxzip3.github.io-master/ajaxzip3.js" charset="UTF-8"></script>
+		<script type="text/javascript" src="./vender/OnsenUI-dist-2.11.1/js/onsenui.min.js"></script>
+		<script type="text/javascript" src="https://smtpjs.com/v3/smtp.js"></script>
+		
+		<style>
+			.scroller {
+				display: block;
+				height: 100%;
+				overflow: auto;
+				-webkit-overflow-scrolling: touch;
+				-ms-overflow-style: none;
+				-ms-scroll-snap-type: mandatory;
+			}
+			
+			body {
+				margin-top: 4px;
+				margin-left: 4px;
+				margin-right: 4px;
+				margin-bottom: 4px;
+				height:100%;
+			}
+			
+			#inputPage > table, #showPage > table{
+				table-layout: fixed;
+				width: 100%;
+				border: 1px solid #BABFC4;
+				border-collapse: collapse;
+				text-align : left;
+			}
+			#inputPage td:nth-child(1), #showPage td:nth-child(1){
+				table-layout: fixed;
+				width: 2%;
+				vertical-align: top;
+				padding: 5px 5px 5px 5px;
+				font-weight: bold;
+				line-height: 1.6;
+				font-size: 15px;
+				color: #555555;
+				background-color: #F0F8FF;
+				border: 0;
+				border-right: 1px solid #BABFC4;
+				border-bottom: 1px solid #BABFC4;
+				box-sizing: border-box;
+			}
+			#inputPage td:nth-child(2), #showPage td:nth-child(2){
+				table-layout: fixed;
+				width: 28%;
+				vertical-align: top;
+				padding: 5px 5px 5px 5px;
+				font-weight: bold;
+				line-height: 1.6;
+				font-size: 15px;
+				color: #555555;
+				background-color: #F0F8FF;
+				border: 0;
+				border-right: 1px solid #BABFC4;
+				border-bottom: 1px solid #BABFC4;
+				box-sizing: border-box;
+			}
+			#inputPage td, #showPage td {
+				table-layout: fixed;
+				width: 60%;
+				vertical-align: text-top;
+				font-size: 15px;
+				line-height: 2.0;
+				color: #555555;
+				background-color: #FFFFFF;
+				padding: 5px 5px 5px 5px;
+				border: 0;
+				border-right: 1px solid #BABFC4;
+				border-bottom: 1px solid #BABFC4;
+				box-sizing: border-box;
+				white-space: pre-wrap;
+			}
+			.req-mark {
+				font-size: 0.8em;
+				height: 1.4em;
+				color: #FFFFFF;
+				background-color: #FF6699;
+				white-space: nowrap;
+				border-radius: 3px;
+				position: relative;
+				padding: 0.1em 0.2em;
+				margin: 0 0 0 0.2em;
+			}
+			
+			.showCenter{
+				margin:0 auto;
+				height:50px;
+				position: relative;
+			}
+			
+			.showCenter > div{
+				position: absolute;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				left: 0;
+				margin: 0 auto;
+				padding:10px;
+				width: 250px;
+				height: 50px;
+			}
+
+			#config-page {	
+			bottom: 20px;	
+			left: 20px;	
+			font-size: 80%;	
+			}
+
+			.dataList{
+				width: 100%;
+				border-collapse: collapse;
+				border:1px solid #333;
+			}
+			
+			.dataList td{
+				border:1px solid #333;
+				text-align:center;
+			}
+			#page-top {
+				position: fixed;
+				bottom: 0px;
+				left: 20px;
+				font-size: 80%;
+			}
+			
+			#page-top a {
+				display: block;
+				background: #666;
+				color: #fff;
+				width: 100px;
+				padding: 10px 0;
+				text-align: center;
+				text-decoration: none;
+				border-radius: 10px;
+			}
+			
+			#page-top a:hover {
+				background: #999;
+				text-decoration: none;
+			}
+			
+			#list-top {
+				position: fixed;
+				bottom: 00px;
+				right: 20px;
+				font-size: 80%;
+			}
+			
+			#list-top a {
+				display: block;
+				background: #666;
+				color: #fff;
+				width: 100px;
+				padding: 10px 0;
+				text-align: center;
+				text-decoration: none;
+				border-radius: 10px;
+			}
+			
+			#list-top a:hover {
+				background: #999;
+				text-decoration: none;
+			}
+			
+			#okPage, #ngPage {
+				width:auto;
+				border: 3px solid #BABFC4;
+				border-collapse: collapse;
+				text-align : center;
+			}
+			
+			.hide {
+				display:none;
+			}
+			
+		</style>
+	</head>
+	
+	<body>
+		<div id='showAll' class="scroller">
+			<!-- 利用しないが実装 -->
+			<ul class='nav-tabs'>
+				<li class='nav-item' ><a class='nav-link' href='#firstPage'>登録なし</a></li>
+				<li class='nav-item' ><a class='nav-link' href='#showPage'>確認</a></li>
+				<li class='nav-item' ><a class='nav-link' href='#okPage'>登録完了</a></li>
+				<li class='nav-item' ><a class='nav-link' href='#mngPage'>管理用</a></li>
+				<li class='nav-item' ><a class='nav-link' href='#ngPage'>重複</a></li>
+			</ul>
+			
+			<!-- エラー表示 -->
+			<div id='firstPage'>
+				登録情報が見つかりませんでした。
+				
+				<div class="showCenter">
+					<div>
+						<input type="button" id="showListBtn" value="一覧表示" />
+					</div>
+				</div>
+			</div>
+			
+			<div id='showPage'>
+				<ons-list>
+				<label>体温記入</label>
+				<ons-list>
+				<ons-list-item tappable>
+				<ons-input type="text" name="temp" id="temp" placeholder="体温記入" modifier="underbar" float></ons-input>
+				</ons-list-item>
+				</ons-list>
+				<label>受付日時</label>
+				<ons-list>
+				<ons-list-item tappable>
+				<ons-input id="today" readonly="readonly" modifier="underbar" float></ons-input>
+				</ons-list-item>
+				</ons-list>
+				<label>受付番号</label>
+				<ons-list>
+				<ons-list-item tappable>
+				<ons-input  type="text" name="gloup" id="gloup" placeholder="グループ入力" modifier="underbar" float></ons-input>-<ons-input  type="text" name="param()" id="No" readonly="readonly" modifier="underbar"float></ons-input>
+				</ons-list-item>
+				</ons-list>
+				<label>発行番号</label>
+				<ons-list>
+				<ons-list-item tappable>
+				<ons-input type="text" name="issueNo" id="issueNo" modifier="underbar" float></ons-input>
+				</ons-list-item>
+				</ons-list>
+				<ons-list-header>1 受付回数<span class='req-mark'>必須</span></ons-list-header>
+				<ons-list-item tappable>
+				<label class="left">
+					<ons-checkbox name="reception" class="colorGroup" input-id="reception-1" value="初めて"></ons-checkbox>
+				</label>
+				<label for="reception-1" class="center">
+					初めて
+				</label>
+				</ons-list-item>
+				<ons-list-item tappable>
+				<label class="left">
+					<ons-checkbox name="reception" class="colorGroup" input-id="reception-2" value="2回以上"></ons-checkbox>
+				</label>
+				<label for="reception-2" class="center">
+					2回以上
+				</label>
+				</ons-list-item>
+				<ons-list-header>2 氏名(全角)<span class='req-mark'>必須</span></ons-list-header>
+				<ons-list>
+				<ons-list-item tappable>
+				<ons-input type="text" id="UserName" name="UserName" modifier="underbar" placeholder="例)矢崎　一郎" float></ons-input>
+				</ons-list-item>
+				</ons-list>
+			<ons-list-header>3 ふりがな(全角)<span class='req-mark'>必須</span></ons-list-header></td>
+			<ons-list-item tappable>
+			<ons-input type="text" id="UserFurigana" name="UserFurigana" modifier="underbar" placeholder="例)やざき　いちろう" float></ons-input>
+			</ons-list-item>
+		<ons-list-header>4 生年月日<span class='req-mark'>必須</span></ons-list-header></td>
+		<ons-list-item tappable>
+		<ons-input type="date" id="inBirthday" name="inBirthday" modifier="underbar" value="1980-01-01" float></ons-input>
+		</ons-list-item>
+	<ons-list-header>5 性別<span class='req-mark'>必須</span></ons-list-header></td>
+	<ons-list-item tappable>
+	<label class="left">
+		<ons-checkbox name="inSex" class="colorGroup1" input-id="inSex-1" value="男"></ons-checkbox>
+	</label>
+	<label for="inSex-1" class="center">
+		男
+	</label>
+	</ons-list-item>
+	<ons-list-item tappable>
+	<label class="left">
+		<ons-checkbox name="inSex" class="colorGroup1" input-id="inSex-2" value="女"></ons-checkbox>
+	</label>
+	<label for="inSex-2" class="center">
+		女
+	</label>
+	</ons-list-item>
+<ons-list-header>6 住所</ons-list-header></td>
+<ons-list-item tappable>
+<div>郵便番号「-」なしで入力下さい。住所が表示されない場合は直接入力お願いします。</div>
+<div>郵便番号(半角)：</div>
+<div>
+	<ons-input type="tel" id="zip11" name="zip11" size="10"  maxlength="8" placeholder="例)1234567" modifier="underbar" onKeyUp="AjaxZip3.zip2addr(this,'','addr11','addr11');"></ons-input>
+</div>
+</ons-list-item>
+<ons-list-item tappable>
+<div>現住所(全角)：</div>
+<div>   
+	<ons-input type="text" id="addr11" name="addr11" size="30" modifier="underbar" placeholder="例)〇〇県○○市or〇〇区" float></ons-input>
+</div>
+</ons-list-item>
+<ons-list-header>7 電話番号(半角)</ons-list-header></td>
+<ons-list-item tappable>
+<ons-input type="tel" id="inTelNumber1" name="inTelNumber1" maxlength="10" modifier="underbar" placeholder="例)0312345678" float></ons-input>
+</ons-list-item>
+<ons-list-header>8 携帯番号(半角)</ons-list-header></td>
+<ons-list-item tappable>
+<ons-input type="tel" id="inTelNumber2" name="inTelNumber2" maxlength="11" modifier="underbar" placeholder="例)08011112222" float></ons-input>
+</ons-list-item>
+<ons-list-header>9 緊急連絡先(半角)<span class='req-mark'>必須</span></ons-list-header></td>
+<ons-list-item tappable>
+<ons-input type="tel" id="inTelNumber3" name="inTelNumber3" maxlength="11" modifier="underbar" placeholder="例)0312345678" float></ons-input>
+</ons-list-item>
+<ons-list-header>10 活動予定期間<span class='req-mark'>必須</span></ons-list-header></td>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="active" class="colorGroup2" input-id="active-1" value="本日のみ"></ons-checkbox>
+</label>
+<label for="active-1" class="center">
+	本日のみ
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="active" class="colorGroup2" input-id="active-2" value="複数日"></ons-checkbox>
+</label>
+<label for="active-2" class="center">
+	複数日
+</label>
+</ons-list-item>
+<ons-list-item>
+<div>期間開始：</div>
+<div>
+	<ons-input type="date" id="actis" name="actis" modifier="underbar" float></ons-input>
+</div>
+<div>期間終了：</div>
+<div>
+	<ons-input type="date" id="actisb" name="actisb" modifier="underbar" float></ons-input>
+</div>
+</ons-list-item>
+<ons-list-header>11 ボランティア活動保険<span class='req-mark'>必須</span></ons-list-header></td>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="bora" class="colorGroup3" input-id="bora-1" value="加入済み"></ons-checkbox>
+</label>
+<label for="bora-1" class="center">
+	加入済み
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="bora" class="colorGroup3" input-id="bora-2" value="未加入"></ons-checkbox>
+</label>
+<label for="bora-2" class="center">
+	未加入
+</label>
+</ons-list-item>
+<ons-list-header>12 健康状態</ons-list-header></td>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="health" class="colorGroup4" input-id="health-1" value="良好"></ons-checkbox>
+</label>
+<label for="health-1" class="center">
+	良好
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="health" class="colorGroup4" input-id="health-2" value="不良"></ons-checkbox>
+</label>
+<label for="health-2" class="center">
+	不良
+</label>
+</ons-list-item>
+<ons-list-header>13 治ってないケガ</ons-list-header></td>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="injury" class="colorGroup5" input-id="injury-1" value="あり"></ons-checkbox>
+</label>
+<label for="injury-1" class="center">
+	あり
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="injury" class="colorGroup5" input-id="injury-2" value="なし"></ons-checkbox>
+</label>
+<label for="injury-2" class="center">
+	なし
+</label>
+</ons-list-item>
+<ons-list-item>
+<div>
+	<ons-input type="text" id="ninjury" name="ninjury" modifier="underbar" placeholder="例)骨折・頭痛etc" float></ons-input>
+</div>
+</ons-list-item>
+<ons-list-header>14 その他の病気</ons-list-header></td>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="sick" class="colorGroup6" input-id="sick-1" value="あり"></ons-checkbox>
+</label>
+<label for="sick-1" class="center">
+	あり
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="sick" class="colorGroup6" input-id="sick-2" value="なし"></ons-checkbox>
+</label>
+<label for="sick-2" class="center">
+	なし
+</label>
+</ons-list-item>
+<ons-list-item>
+<div>
+	<ons-input type="text" id="nsick" name="nsick" modifier="underbar" placeholder="ありの場合記入" float></ons-input>
+</div>
+</ons-list-item>
+<ons-list-header>15 血液型</ons-list-header></td>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox class="colorGroup7" input-id="blood-1" value="A型" class="blood_area"></ons-checkbox>
+</label>
+<label for="blood-1" class="center">
+	A型
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox class="colorGroup7" input-id="blood-2" value="B型" class="blood_area"></ons-checkbox>
+</label>
+<label for="blood-2" class="center">
+	B型
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox class="colorGroup7" input-id="blood-3" value="O型" class="blood_area"></ons-checkbox>
+</label>
+<label for="blood-3" class="center">
+	O型
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox class="colorGroup7" input-id="blood-4" value="AB型" class="blood_area"></ons-checkbox>
+</label>
+<label for="blood-4" class="center">
+	AB型
+</label>
+</ons-list-item>
+<ons-list-header>16 資格免許</ons-list-header></td>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-1" value="運転免許(普通)" class="area"></ons-checkbox>
+</label>
+<label for="area-1" class="center">
+	運転免許(普通)
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-2" value="運転免許(大型)" class="area"></ons-checkbox>
+</label>
+<label for="area-2" class="center">
+	運転免許(大型)
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-3" value="運転免許(自二)" class="area"></ons-checkbox>
+</label>
+<label for="area-3" class="center">
+	運転免許(自二)
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-4" value="医師" class="area"></ons-checkbox>
+</label>
+<label for="area-4" class="center">
+	医師
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-5" value="看護師" class="area"></ons-checkbox>
+</label>
+<label for="area-5" class="center">
+	看護師
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-6" value="保険師" class="area"></ons-checkbox>
+</label>
+<label for="area-6" class="center">
+	保険師
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-7" value="助産師" class="area"></ons-checkbox>
+</label>
+<label for="area-7" class="center">
+	助産師
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-8" value="保育士" class="area"></ons-checkbox>
+</label>
+<label for="area-8" class="center">
+	保育士
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-9" value="救急救命士" class="area"></ons-checkbox>
+</label>
+<label for="area-9" class="center">
+	救急救命士
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-10" value="介護福祉士" class="area"></ons-checkbox>
+</label>
+<label for="area-10" class="center">
+	介護福祉士
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-11" value="ホームヘルパー" class="area"></ons-checkbox>
+</label>
+<label for="area-11" class="center">
+	ホームヘルパー
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-12" value="マッサージ師" class="area"></ons-checkbox>
+</label>
+<label for="area-12" class="center">
+	マッサージ師
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-13" value="理美容師" class="area"></ons-checkbox>
+</label>
+<label for="area-13" class="center">
+	理美容師
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-14" value="建築士" class="area"></ons-checkbox>
+</label>
+<label for="area-14" class="center">
+	建築士
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<ons-input id="shikaku" name="shikaku" modifier="underbar" placeholder="例)建築士〇級" float></ons-input>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-15" value="手話通訳士" class="area"></ons-checkbox>
+</label>
+<label for="area-15" class="center">
+	手話通訳士
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-16" value="調理師" class="area"></ons-checkbox>
+</label>
+<label for="area-16" class="center">
+	調理師
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-17" value="栄養士" class="area"></ons-checkbox>
+</label>
+<label for="area-17" class="center">
+	栄養士
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-18" value="アマチュア無線" class="area"></ons-checkbox>
+</label>
+<label for="area-18" class="center">
+	アマチュア無線
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="area-19" value="その他" class="area"></ons-checkbox>
+</label>
+<label for="area-19" class="center">
+	その他
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<ons-input id="shikaku1" name="shikaku1" modifier="underbar" placeholder="その他あれば記入" float></ons-input>
+</ons-list-item>
+<ons-list-header>17 特技等</ons-list-header></td>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-1" value="災害ボランティアの経験" class="are"></ons-checkbox>
+</label>
+<label for="are-1" class="center">
+	災害ボランティアの経験
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-2" value="イラスト" class="are"></ons-checkbox>
+</label>
+<label for="are-2" class="center">
+	イラスト
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-3" value="介護" class="are"></ons-checkbox>
+</label>
+<label for="are-3" class="center">
+	介護
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-4" value="要約筆記" class="are"></ons-checkbox>
+</label>
+<label for="are-4" class="center">
+	要約筆記
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-5" value="点字" class="are"></ons-checkbox>
+</label>
+<label for="are-5" class="center">
+	点字
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-6" value="手話" class="are"></ons-checkbox>
+</label>
+<label for="are-6" class="center">
+	手話
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-7" value="外国語通訳" class="are"></ons-checkbox>
+</label>
+<label for="are-7" class="center">
+	外国語通訳
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<ons-input id="tokugi" name="tokugi" modifier="underbar" placeholder="例)英語・フランス語etc" float></ons-input>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-8" value="電気工事関係" class="are"></ons-checkbox>
+</label>
+<label for="are-8" class="center">
+	電気工事関係
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-9" value="建築土木関係" class="are"></ons-checkbox>
+</label>
+<label for="are-9" class="center">
+	建築土木関係
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-10" value="自動車・自転車修理" class="are"></ons-checkbox>
+</label>
+<label for="are-10" class="center">
+	自動車・自転車修理
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-11" value="事務" class="are"></ons-checkbox>
+</label>
+<label for="are-11" class="center">
+	事務
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox input-id="are-12" value="その他" class="are"></ons-checkbox>
+</label>
+<label for="are-12" class="center">
+	その他
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<ons-input id="tokugi1" name="tokugi1" modifier="underbar" placeholder="その他あれば記入" float></ons-input>
+</ons-list-item>
+
+<ons-list-header>登録内容メール<span class='req-mark'>必須</span></ons-list-header></td>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="sendmail" class="colorGroup8" input-id="sendmail-1" value="1"></ons-checkbox>
+</label>
+<label for="sendmail-1" class="center">
+	送る
+</label>
+</ons-list-item>
+<ons-list-item tappable>
+<label class="left">
+	<ons-checkbox name="sendmail" class="colorGroup8" input-id="sendmail-2" value="0"></ons-checkbox>
+</label>
+<label for="sendmail-2" class="center">
+	送らない
+</label>
+</ons-list-item>
+<div class="sendFor-area hide" id="sendFor-area">
+<ons-list-header>送付先<span class='req-mark'>必須</span></ons-list-header>
+<ons-list>
+<ons-list-item tappable>
+<ons-input type="text" id="sendFor" name="sendFor" modifier="underbar" size="60" placeholder="example@gmail.com,example@yahoo.co.jp" float></ons-input>
+</ons-list-item>
+</ons-list>
+</div>
+</ons-list>
+<p id="config-page"><a href="config.html">メール設定</a></p>
+
+<div class="showCenter">
+	<div>
+		<input type="button" id="okBtn" value="登録" />
+	</div>
+</div>
+
+</ons-page>
+</div>
+
+<!-- 基本情報表示 -->
+<div id='okPage'>
+	登録しました。
+</div>
+<div id='ngPage'>
+	上書きしました。
+</div>
+
+<p id="page-top"><a href="index.html">PAGE TOP</a></p>
+<p id="list-top"><a href="list.html" target="_blank">list page</a></p>
+
+
+<!-- <div class="showCenter">
+	<div>
+		<input type="button" id="showMngBtn" value="一覧表示" />
+	</div>
+	</div> -->
+
+
+<div id='mngPage'>
+	<table class="dataList"></table>
+	
+	<div class="showCenter">
+		<div>
+			<input type="button" id="initListBtn" value="登録初期化" />
+			<input type="button" id="downloadBtn" value="ダウンロード" />
+		</div>
+	</div>
+</div>
+
+</div><!-- tabs End -->
+
+<script type="text/javascript">
+	//受付回数
+	const ele5 = { 
+		"1":"初めて", 
+		"2":"2回以上",
+	}
+	// 性別
+	const ele9 = { 
+		"1":"男", 
+		"2":"女"
+	}
+	//活動予定期間
+	const ele15 = { 
+		"1":"本日のみ",
+		"2":"複数日"
+	}
+	//ボランティア活動保険
+	const ele18 = { 
+		"1":"加入済み",
+		"2":"未加入"
+	}
+	//健康状態
+	const ele19 = { 
+		"1":"良好",
+		"2":"不良"
+	}
+	//治っていないケガ
+	const ele20 = { 
+		"1":"あり",
+		"2":"なし"
+	}
+	//その他の病気
+	const ele22 = { 
+		"1":"あり",
+		"2":"なし"
+	}
+	
+	//血液型
+	const ele24 = { 
+		"1":"A型",
+		"2":"B型",
+		"3":"O型",
+		"4":"AB型"
+	}
+	
+	//資格免許
+	const ele25 = { 
+		"1":"運転免許\\(普通\\)",
+		"2":"運転免許\\(大型\\)",
+		"3":"運転免許\\(自二\\)",
+		"4":"医師",
+		"5":"看護師",
+		"6":"保険師",
+		"7":"助産師",
+		"8":"保育士",
+		"9":"救急救命士",
+		"10":"介護福祉士",
+		"11":"ホームヘルパー",
+		"12":"マッサージ師",
+		"13":"理美容師",
+		"14":"建築士",
+		"15":"手話通訳士",
+		"16":"調理師",
+		"17":"栄養士",
+		"18":"アマチュア無線",
+		"19":"その他"
+	}
+	
+	//特技
+	const ele28 = { 
+		"1":"災害ボランティアの経験",
+		"2":"イラスト",
+		"3":"介護",
+		"4":"要約筆記",
+		"5":"点字",
+		"6":"手話",
+		"7":"外国語通訳",
+		"8":"電気工事関係",
+		"9":"建築土木関係",
+		"10":"自動車・自転車修理",
+		"11":"事務",
+		"12":"その他"
+	}
+	
+	//今日の日時を表示
+	window.onload = function () {
+		//今日の日時を表示
+		var date = new Date()
+		var year = date.getFullYear()
+		var month = date.getMonth() + 1
+		var day = date.getDate()
+		
+		var toTwoDigits = function (num, digit) {
+			num += ''
+			if (num.length < digit) {
+				num = '0' + num
+			}
+			return num
+		}
+		
+		var yyyy = toTwoDigits(year, 4)
+		var mm = toTwoDigits(month, 2)
+		var dd = toTwoDigits(day, 2)
+		var ymd = yyyy + "-" + mm + "-" + dd;
+		
+		document.getElementById("today").value = ymd;
+		
+	}
+	
+	
+	$(function () {
+			
+			var list;
+			var entry = [];
+			
+			$('td').click(function(){
+					if(!$(this).hasClass('on') && $(this).find('input').length == 0){
+						$(this).addClass('on');
+						var txt = $(this).text();
+						$(this).html('<input type="text" value="'+txt+'" />');
+						if (txt.indexOf("\"") != -1){
+							console.log(strTemp.replace(/[\"]/g,""))
+						}
+					}
+			});
+
+			$('.colorGroup').on('click', function() {
+					if ($(this).prop('checked')){
+						// 一旦全てをクリアして再チェックする
+						$('.colorGroup').prop('checked', false);
+						$(this).prop('checked', true);
+					}
+			});
+			$('.colorGroup1').on('click', function() {
+					if ($(this).prop('checked')){
+						// 一旦全てをクリアして再チェックする
+						$('.colorGroup1').prop('checked', false);
+						$(this).prop('checked', true);
+					}
+			});
+			$('.colorGroup2').on('click', function() {
+					if ($(this).prop('checked')){
+						// 一旦全てをクリアして再チェックする
+						$('.colorGroup2').prop('checked', false);
+						$(this).prop('checked', true);
+					}
+			});
+			$('.colorGroup3').on('click', function() {
+					if ($(this).prop('checked')){
+						// 一旦全てをクリアして再チェックする
+						$('.colorGroup3').prop('checked', false);
+						$(this).prop('checked', true);
+					}
+			});
+			$('.colorGroup4').on('click', function() {
+					if ($(this).prop('checked')){
+						// 一旦全てをクリアして再チェックする
+						$('.colorGroup4').prop('checked', false);
+						$(this).prop('checked', true);
+					}
+			});
+			$('.colorGroup5').on('click', function() {
+					if ($(this).prop('checked')){
+						// 一旦全てをクリアして再チェックする
+						$('.colorGroup5').prop('checked', false);
+						$(this).prop('checked', true);
+					}
+			});
+			$('.colorGroup6').on('click', function() {
+					if ($(this).prop('checked')){
+						// 一旦全てをクリアして再チェックする
+						$('.colorGroup6').prop('checked', false);
+						$(this).prop('checked', true);
+					}
+			});
+			$('.colorGroup7').on('click', function() {
+					if ($(this).prop('checked')){
+						// 一旦全てをクリアして再チェックする
+						$('.colorGroup7').prop('checked', false);
+						$(this).prop('checked', true);
+					}
+			});
+			
+			$('.colorGroup8').on('click', function() {
+					if ($(this).prop('checked')){
+						// 一旦全てをクリアして再チェックする
+						$('.colorGroup8').prop('checked', false);
+						$(this).prop('checked', true);
+					}
+			});
+			
+			$('#sendmail-1').change(function() {
+					$('#sendFor-area').toggleClass("hide");
+			});
+			
+			$('#sendmail-2').change(function() {
+					$('#sendFor-area').addClass("hide");
+			});
+
+			function init(){
+				$('#showAll').tabs().tabs({active:0});
+				$('#showAll > ul').hide();	
+				
+				var param = location.search.substring(1);
+				if(param != ""){
+					$('#showAll').tabs().tabs({active:1});
+					makeResult(param);
+					if (window.localStorage.getItem("isConfirm") == 'false') {
+						$("#okBtn").trigger('click');
+					}
+				}
+			}
+			
+			$(init);
+			function makeResult(param){
+				var ele = param.split('&');
+				var eleArray = [];
+				var cnt = 1;
+				eleArray[0] = 0;
+				$(ele).each(function(i){
+						var paramItem = ele[i].split('=');
+						eleArray[i+4] = decodeURI(paramItem[1]);
+				});
+				
+				$("#gloup").val(window.localStorage.getItem("gloupCode"));
+				$("#issueNo").val(eleArray[4]);
+				setForCheckBox(eleArray[5],ele5);
+				$("#UserName").val(eleArray[6]);
+				$("#UserFurigana").val(eleArray[7]);
+				$("#inBirthday").val(eleArray[8]);
+				setForCheckBox(eleArray[9],ele9);
+				$("#zip11").val(eleArray[10]);
+				$("#addr11").val(eleArray[11]);
+				$("#inTelNumber1").val(eleArray[12]);
+				$("#inTelNumber2").val(eleArray[13]);
+				$("#inTelNumber3").val(eleArray[14]);
+				setForCheckBox(eleArray[15],ele15);
+				$("#actis").val(eleArray[16]);
+				$("#actisb").val(eleArray[17]);
+				setForCheckBox(eleArray[18],ele18);
+				setForCheckBox(eleArray[19],ele19);
+				setForCheckBox(eleArray[20],ele20);
+				$('#ninjury').val(eleArray[21]);
+				setForCheckBox(eleArray[22],ele22);
+				$('#nsick').val(eleArray[23]);
+				setForCheckBox(eleArray[24],ele24);
+				setForCheckBox(eleArray[25],ele25);
+				$('#shikaku').val(eleArray[26]);
+				$('#shikaku1').val(eleArray[27]);
+				setForCheckBox(eleArray[28],ele28);
+				$('#tokugi').val(eleArray[29]);
+				$('#tokugi1').val(eleArray[30]);
+				var flg = window.localStorage.getItem("mailSendFlg");
+				$('input[value='+flg+']').prop('checked', true);
+				if(flg==1) {
+					$('#sendFor-area').toggleClass("hide");
+				}
+				$("#sendFor").val(window.localStorage.getItem("sendFor"));
+				
+				var today = new Date();
+				var yyyy = today.getFullYear()
+				var mm = today.getMonth()+1
+				var dd = today.getDate()
+				document.getElementById("No").value = yyyy + "" + mm + "" + dd + "-" + eleArray[4]
+			}
+			
+			function setForCheckBox(ele,con) {
+				var elements = ele.replace(/"/g, '').split(',');
+				if (elements == "") {
+					return;
+				}
+				$(elements).each(function(i){
+						var val = con[elements[i]];
+						$('input[value='+val+']').prop('checked', true);
+				});
+			}
+			
+			function setEntry() {
+				entry[4] = $("#issueNo").val();
+				entry[5] = $('.colorGroup input:checkbox:checked').map((i, c) => $(c).val()).get().join(",");
+				entry[6] = $("#UserName").val();
+				entry[7] = $("#UserFurigana").val();
+				entry[8] = $("#inBirthday").val();
+				entry[9] = $('.colorGroup1 input:checkbox:checked').map((i, c) => $(c).val()).get().join(",");
+				entry[10] = $("#zip11").val();
+				entry[11] = $("#addr11").val();
+				entry[12] = $("#inTelNumber1").val();
+				entry[13] = $("#inTelNumber2").val();
+				entry[14] = $("#inTelNumber3").val();
+				entry[15] = $('.colorGroup2 input:checkbox:checked').map((i, c) => $(c).val()).get().join(",");
+				entry[16] = $("#actis").val();
+				entry[17] = $("#actisb").val();
+				entry[18] = $('.colorGroup3 input:checkbox:checked').map((i, c) => $(c).val()).get().join(",");
+				entry[19] = $('.colorGroup4 input:checkbox:checked').map((i, c) => $(c).val()).get().join(",");
+				entry[20] = $('.colorGroup5 input:checkbox:checked').map((i, c) => $(c).val()).get().join(",");
+				entry[21] = $('#ninjury').val();
+				entry[22] = $('.colorGroup6 input:checkbox:checked').map((i, c) => $(c).val()).get().join(",");
+				entry[23] = $('#nsick').val();
+				entry[24] = $('.colorGroup7 input:checkbox:checked').map((i, c) => $(c).val()).get().join(",");
+				entry[25] = makeCheckList($('.area input'));
+				entry[26] = $('#shikaku').val();
+				entry[27] = $('#shikaku1').val();
+				entry[28] = makeCheckList($('.are input'));
+				entry[29] = $('#tokugi').val();
+				entry[30] = $('#tokugi1').val();
+			}
+			
+			function checkInput(){
+				var ret = true;
+				if( !$("input:checkbox[name='reception']:checked").val() ) ret = false;
+				if( $("#UserFurigana").val() == "") ret = false;
+				if( $("#UserName").val() == "") ret = false;
+				if( $("#inBirthday").val() == "") ret = false;
+				if( !$("input:checkbox[name='inSex']:checked").val() ) ret = false;
+				if( $("#inTelNumber3").val() == "") ret = false;
+				if( !$("input:checkbox[name='active']:checked").val() ) ret = false;
+				if( !$("input:checkbox[name='bora']:checked").val() ) ret = false;
+				if( !$("input:checkbox[name='sendmail']:checked").val() )  ret = false;
+				var mailVal = $("input:checkbox[name='sendmail']:checked").val();
+				if( mailVal === "1" && $("#sendFor").val() == "")  ret = false;
+				return ret;
+			}
+			
+			function makeCheckList(eles) {
+				var result="";
+				for(var i=0; eles.length > i; i++){
+					if(eles[i].checked) {
+						result+="○" + (i!=eles.length-1 ? "," : "" ) 
+					}else{
+						result+=(i!=eles.length-1 ? "," : "" );
+					}
+				}
+				return result;
+			}
+			
+			$("#okBtn").click(function(){
+					if(checkInput()){
+						setEntry();
+						var data = window.localStorage.getItem("entryList");
+						list = $.extend(true, [], JSON.parse(data));
+						// 重複チェック
+						// 氏名=6、生年月日=8、電話番号=12、携帯番号=13、緊急連絡先=14が同じなら上書きする
+						const targets = [6, 8, 14];
+						let index = -1;
+						list.forEach((l1, i) => {
+								if (l1.every((l2, i) => !targets.includes(i) || l2 == entry[i])) {
+									index = i;
+									return false;
+								}
+							}
+						);
+						if (index > 0) {
+							entry[0] = list[index][0];
+						} else {
+							entry[0] = list.length + 1;
+						}
+						
+						console.log(entry);
+						var today = new Date();
+						var yyyy = today.getFullYear()
+						var mm = today.getMonth()+1
+						var dd = today.getDate()
+						// document.getElementById("No").value = entry[3];
+						var temp_a = $('#temp').val();
+						var gloup_a = $('#gloup').val();
+						entry[1] = temp_a
+						entry[2] = yyyy + "-" + mm + "-" + dd;
+						entry[3] = gloup_a + "-" + yyyy + "" + mm + "" + dd + "-" + entry[4];
+						if (index > 0) {
+							list.splice(index, 1, entry);
+						} else {
+							list.push(entry);
+						}
+						window.localStorage.setItem("entryList", JSON.stringify(list));
+						window.localStorage.setItem("gloupCode", gloup_a);
+						var mailSendFlg =  $("input:checkbox[name='sendmail']:checked").val();
+						window.localStorage.setItem("mailSendFlg", mailSendFlg);
+						if(mailSendFlg == 1) {
+							window.localStorage.setItem("sendFor", $("#sendFor").val());
+							sendMail(entry);
+						}
+						
+						makeTalbe();
+						//$('#showAll').tabs().tabs({active:3});
+						if (index > 0) {
+							$('#showAll').tabs().tabs({active:4});
+						} else {
+							$('#showAll').tabs().tabs({active:2});
+						}
+					}else{
+						alert("必須入力が未入力です。ご確認ください。");
+					}
+			});
+			
+			$("#showListBtn").click(function(){
+					var data = window.localStorage.getItem("entryList");
+					list = $.extend(true, [], JSON.parse(data));
+					
+					makeTalbe()
+					$('#showAll').tabs().tabs({active:3});
+			});	
+			
+			function makeTalbe(){
+				var target = $(".dataList");
+				
+				var tmp;
+				tmp = "<tr>";
+				tmp += "<td>受付No</td>"
+				tmp += "<td>発行No</td>"
+				tmp += "<td>氏名</td>";
+				tmp += "</tr>";
+				target.append(tmp);
+				
+			}
+			
+			$("#initListBtn").click(function(){
+					$(".dataList").empty();
+					window.localStorage.removeItem("entryList");
+					if(!confirm('本当に削除しますか？')){
+						/* キャンセルの時の処理 */
+						return false;
+					}else{
+						/*　OKの時の処理 */
+						location.href = 'list.html';
+					}
+			});	
+			
+			$("#downloadBtn").click(function(){
+					var header = ["NO","体温記入","受付日時","受付No","発行No","受付回数","氏名","フリガナ","生年月日","性別","郵便番号","現住所","電話番号","携帯番号","緊急連絡先","活動予定期間","期間開始","期間終了","ボランティア活動保険","健康状態","治ってないケガ","治ってないケガがある場合記載","その他の病気","その他の病気ある場合記載","血液型","運転免許\(普通\)","運転免許\(大型\)","運転免許\(自二\)","医師","看護師","保険師","助産師","保育士","救急救命士","介護福祉士","ホームヘルパー","マッサージ師","理美容師","建築士","手話通訳士","調理師","栄養士","アマチュア無線","その他","建築士(級)","その他ある場合記載","災害ボランティアの経験","イラスト","介護","要約筆記","点字","手話","外国語通訳","電気工事関係","建築土木関係","自動車・自転車修理","事務","その他","外国語通訳記載","その他ある場合記載"];
+					var newList = list;
+					newList.unshift(header) ;
+					
+					var bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+					var csv_data = newList.map(function(l){return l.join(",")}).join("\r\n");
+					var blob = new Blob([bom, csv_data], { type: "text/csv" });
+					var url = (window.URL || window.webkitURL).createObjectURL(blob);
+					var link = document.createElement("a");
+					link.download = "list.csv"
+					link.href = url
+					link.click()
+			});
+	});//終わり
+	
+	function conCheckToName(arg,map) {
+		var result = "";
+		var list = arg.split(',');
+		for(var i=0; list.length > i; i++){
+			if(list[i] !== "") {
+				result +=  map[i+1] .replace(/\\/g,'')+ (i!=list.length-1 ? "," : "" );
+			}
+		}
+		return result;
+	}
+	
+	function makeMsg(entry) {
+		var msg = "NO：" + entry[0] + "<br>";
+		msg += "体温記入：" + entry[1] + "<br>";
+		msg += "受付日時：" + entry[2] + "<br>";
+		msg += "受付No：" + entry[3] + "<br>";
+		msg += "発行No：" + entry[4] + "<br>";
+		msg += "受付回数：" + entry[5] + "<br>";
+		msg += "氏名：" + entry[6] + "<br>";
+		msg += "フリガナ：" + entry[7] + "<br>";
+		msg += "生年月日：" + entry[8] + "<br>";
+		msg += "性別：" + entry[9] + "<br>";
+		msg += "郵便番号：" + entry[10] + "<br>";
+		msg += "現住所：" + entry[11] + "<br>";
+		msg += "電話番号：" + entry[12] + "<br>";
+		msg += "携帯番号：" + entry[13] + "<br>";
+		msg += "緊急連絡先：" + entry[14] + "<br>";
+		msg += "活動予定期間：" + entry[15] + "<br>";
+		msg += "期間開始：" + entry[16] + "<br>";
+		msg += "期間終了：" + entry[17] + "<br>";
+		msg += "ボランティア活動保険：" + entry[18] + "<br>";
+		msg += "健康状態：" + entry[19] + "<br>";
+		msg += "治ってないケガ：" + entry[20] + "<br>";
+		msg += "治ってないケガがある場合記載：" + entry[21] + "<br>";
+		msg += "その他の病気：" + entry[22] + "<br>";
+		msg += "その他の病気ある場合記載：" + entry[23] + "<br>";
+		msg += "血液型：" + entry[24] + "<br>";
+		msg += "資格・免許：" + conCheckToName(entry[25],ele25) + "<br>";
+		msg += "建築士(級)：" + entry[26] + "<br>";
+		msg += "その他(詳細)：" + entry[27] + "<br>";
+		msg += "特技：" + conCheckToName(entry[28],ele28) + "<br>";
+		msg += "外国語通訳記載：" + entry[29] + "<br>";
+		msg += "その他(詳細)" + entry[30] + "<br>";
+		return msg;
+	}
+	
+	function sendMail(entry) {
+		Email.send({
+				SecureToken : window.localStorage.getItem("token"),
+				To : $("#sendFor").val(),
+				From : window.localStorage.getItem("from"),
+				Subject : window.localStorage.getItem("subject"),
+				Body : makeMsg(entry)
+		}).then(
+			function (data) {
+					if(data == "OK") {
+						alert("OK");
+					} else {
+						alert("メール送信に失敗しました。設定内容を見直してください。");
+					}
+			}
+		);
+	}
+</script>
+</body>
+</html>

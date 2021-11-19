@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>メール送信設定</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+		
+		<link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
+		<link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
+		<script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
+		
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+		
+		<script src="https://ajaxzip3.github.io/ajaxzip3.js" charset="UTF-8"></script>
+		<link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+		<script src="https://smtpjs.com/v3/smtp.js"></script>
+		
+		<style>
+			
+		</style>
+	</head>
+	
+	<body>
+		<form id="form_sercret">
+			<fieldset>
+				<legend>メール送信設定</legend>
+				<div>
+					<label for="token">token: </label><br>
+					<input type="text" name="token" id="token" value="" size="30">
+				</div>
+				<div>
+					<label for="From">From: </label><br>
+					<input type="text" name="From" id="From" value="" size="30">
+				</div>
+				<div>
+					<label for="Subject">Subject: </label><br>
+					<input type="text" name="Subject" id="Subject" value="" size="50">
+				</div>
+			</fieldset>
+			<div>
+				<input type="button" value="Submit" onclick="set_config();"> <input type="reset" value="Reset" onclick="delete_config();">
+			</div>
+		</form>
+		
+		<script type="text/javascript">
+			$(function () {
+					$("#token").val(window.localStorage.getItem("token"));
+					$("#From").val(window.localStorage.getItem("from"));
+					$("#Subject").val(window.localStorage.getItem("subject"));
+			});
+			
+			function set_config() {
+				window.localStorage.setItem("token", $("#token").val());
+				window.localStorage.setItem("from", $("#From").val());
+				window.localStorage.setItem("subject", $("#Subject").val());
+				alert("設定を追加しました。");
+			}
+			
+			function delete_config() {
+				window.localStorage.setItem("token","");
+				window.localStorage.setItem("from","");
+				window.localStorage.setItem("subject","");
+				$("#token").val("");
+				$("#From").val("");
+				$("#Subject").val("");
+				alert("設定を削除しました。");
+			}
+		</script>
+	</body>
+</html>
